@@ -249,7 +249,11 @@ namespace Gala
 				scroll.y = height - 12;
 				(scroll.content as Clutter.Canvas).set_size ((int)scroll.width, 12);
 			} else {
-				thumbnails.animate (Clutter.AnimationMode.EASE_OUT_QUAD, 400, x : width / 2 - thumbnails.width / 2);
+				thumbnails.save_easing_state();
+				thumbnails.set_easing_duration(400);
+				thumbnails.set_easing_mode(Clutter.AnimationMode.EASE_OUT_QUAD);
+				thumbnails.set_x(width / 2 - thumbnails.width / 2);
+				thumbnails.restore_easing_state();
 			}
 		}
 		
@@ -460,11 +464,21 @@ namespace Gala
 			}); //catch hot corner hiding problem
 			
 			var wins = Compositor.get_window_group_for_screen (screen);
-			wins.detach_animation ();
+			wins.remove_all_transitions ();
 			wins.x = 0.0f;
 			
-			animate (Clutter.AnimationMode.EASE_OUT_QUAD, 250, y : (area.height + area.y) - height);
-			wins.animate (Clutter.AnimationMode.EASE_OUT_QUAD, 250, y : -height + 1);
+			
+			save_easing_state();
+			set_easing_duration(250);
+			set_easing_mode(Clutter.AnimationMode.EASE_OUT_QUAD);
+			set_y((area.height + area.y) - height);
+			restore_easing_state();
+			
+			wins.save_easing_state();
+			wins.set_easing_duration(250);
+			wins.set_easing_mode(Clutter.AnimationMode.EASE_OUT_QUAD);
+			wins.set_y(-height + 1);
+			wins.restore_easing_state();
 		}
 		
 		public new void hide ()
@@ -490,9 +504,15 @@ namespace Gala
 			click_catcher.visible = false;
 			
 			var wins = Compositor.get_window_group_for_screen (screen);
-			wins.detach_animation ();
+			wins.remove_all_transitions ();
 			wins.x = 0.0f;
-			wins.animate (Clutter.AnimationMode.EASE_OUT_EXPO, 500, y : 0.0f);
+
+			wins.save_easing_state();
+			wins.set_easing_duration(500);
+			wins.set_easing_mode(Clutter.AnimationMode.EASE_OUT_EXPO);
+			wins.set_y(0.0f);
+			wins.restore_easing_state();
+			
 		}
 		
 		public void handle_switch_to_workspace (Meta.Display display, Meta.Screen screen, Meta.Window? window,

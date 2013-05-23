@@ -510,7 +510,14 @@ namespace Gala
 			clone.animate (Clutter.AnimationMode.EASE_OUT_CUBIC, 250, scale_x:fscale, scale_y:fscale, x:rect.x+0.0f, y:rect.y+0.0f)
 				.completed.connect (() => ready = true );
 			clone.icon.opacity = 0;
-			clone.icon.animate (Clutter.AnimationMode.EASE_OUT_CUBIC, 350, scale_x:1.0f, scale_y:1.0f, opacity:255);
+			
+			clone.icon.save_easing_state();
+			clone.icon.set_easing_duration(350);
+			clone.icon.set_easing_mode(Clutter.AnimationMode.EASE_OUT_CUBIC);
+			clone.icon.set_scale(1.0f, 1.0f);
+			clone.icon.set_opacity(255);
+			clone.icon.restore_easing_state();
+			
 		}
 		
 		public void open (bool animate = true, bool all_windows = false)
@@ -573,7 +580,8 @@ namespace Gala
 #else
 			Compositor.get_background_actor_for_screen (screen).
 #endif
-				animate (AnimationMode.EASE_OUT_QUAD, 350, dim_factor : 0.6);
+			
+			animate (AnimationMode.EASE_OUT_QUAD, 350, dim_factor : 0.6);			
 			
 			// sort windows by stacking order
 			var windows = screen.get_display ().sort_windows_by_stacking (used_windows);

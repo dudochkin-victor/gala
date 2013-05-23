@@ -141,11 +141,21 @@ namespace Gala
 			dock_width = 0;
 			
 			set_child_above_sibling (dock, null);
-			dock_background.animate (AnimationMode.EASE_OUT_CUBIC, 250, opacity : 0);
+			
+			dock_background.save_easing_state();
+			dock_background.set_easing_duration(250);
+			dock_background.set_easing_mode(Clutter.AnimationMode.EASE_OUT_CUBIC);
+			dock_background.set_opacity(0);
+			dock_background.restore_easing_state();
+			
 			
 			if (dock_window != null) {
-				dock_window.show ();
-				dock_window.animate (AnimationMode.LINEAR, 250, opacity : 255);
+				dock_window.show ();			
+				dock_window.save_easing_state();
+				dock_window.set_easing_duration(250);
+				dock_window.set_easing_mode(Clutter.AnimationMode.LINEAR);
+				dock_window.set_opacity(255);
+				dock_window.restore_easing_state();
 			}
 			
 			foreach (var clone in window_clones) {
@@ -155,10 +165,18 @@ namespace Gala
 				
 				//reset order
 				clone.get_parent ().set_child_below_sibling (clone, null);
-				clone.animate (AnimationMode.EASE_OUT_CUBIC, 150, depth : 0.0f, opacity : 255);
+				
+				clone.save_easing_state();
+				clone.set_easing_duration(150);
+				clone.set_easing_mode(Clutter.AnimationMode.EASE_OUT_CUBIC);
+				clone.set_z_position(0.0f);
+				clone.set_opacity(255);
+				clone.restore_easing_state();
+				
 			}
 			
 			if (current_window != null) {
+				stderr.printf ("ACTIVATE\n");
 				current_window.activate (time);
 				current_window = null;
 			}
@@ -272,11 +290,24 @@ namespace Gala
 			foreach (var clone in window_clones) {
 				if (current_actor == clone.source) {
 					set_child_below_sibling (clone, dock_background);
-					clone.animate (Clutter.AnimationMode.EASE_OUT_QUAD, 250, depth : 0.0f, opacity : 255);
+					
+					clone.save_easing_state();
+					clone.set_easing_duration(250);
+					clone.set_easing_mode(Clutter.AnimationMode.EASE_OUT_QUAD);
+					clone.set_z_position(0.0f);
+					clone.set_opacity(255);
+					clone.restore_easing_state();
 					
 					dock.get_child_at_index (i).animate (AnimationMode.LINEAR, 100, opacity : 255);
 				} else {
-					clone.animate (Clutter.AnimationMode.EASE_OUT_QUAD, 250, depth : -200.0f, opacity : 0);
+					
+					clone.save_easing_state();
+					clone.set_easing_duration(250);
+					clone.set_easing_mode(Clutter.AnimationMode.EASE_OUT_QUAD);
+					clone.set_z_position(-200.0f);
+					clone.set_opacity(0);
+					clone.restore_easing_state();
+					
 					dock.get_child_at_index (i).animate (AnimationMode.LINEAR, 100, opacity : 100);
 				}
 				
@@ -344,7 +375,13 @@ namespace Gala
 			if (visible) {
 				float dest_width;
 				dock.layout_manager.get_preferred_width (dock, dock.height, null, out dest_width);
-				dock.animate (AnimationMode.EASE_OUT_CUBIC, 400, width : dest_width);
+				
+				dock.save_easing_state();
+				dock.set_easing_duration(400);
+				dock.set_easing_mode(Clutter.AnimationMode.EASE_OUT_CUBIC);
+				dock.set_width(dest_width);
+				dock.restore_easing_state();
+					
 				dim_windows ();
 			}
 		}
@@ -365,7 +402,13 @@ namespace Gala
 			
 			float dest_width;
 			dock.layout_manager.get_preferred_width (dock, dock.height, null, out dest_width);
-			dock.animate (AnimationMode.EASE_OUT_CUBIC, 400, width : dest_width);
+			
+			dock.save_easing_state();
+			dock.set_easing_duration(400);
+			dock.set_easing_mode(Clutter.AnimationMode.EASE_OUT_CUBIC);
+			dock.set_width(dest_width);
+			dock.restore_easing_state();
+		
 		}
 		
 		void remove_window (Meta.Window window)
@@ -414,7 +457,7 @@ namespace Gala
 				var actor = win.get_compositor_private () as Actor;
 				if (actor.is_in_clone_paint ())
 					return;
-				
+				stderr.printf ("WIN ACTIVATE\n");
 				win.activate (display.get_current_time ());
 
 				if (win.minimized)
@@ -427,7 +470,13 @@ namespace Gala
 				clone.y = actor.y;
 				Meta.Compositor.get_overlay_group_for_screen (screen).add_child (clone);
 				clone.animate (Clutter.AnimationMode.LINEAR, 100, depth : -50.0f).completed.connect (() => {
-					clone.animate (Clutter.AnimationMode.LINEAR, 300, depth : 0.0f);
+
+					clone.save_easing_state();
+					clone.set_easing_duration(300);
+					clone.set_easing_mode(Clutter.AnimationMode.LINEAR);
+					clone.set_z_position(0.0f);
+					clone.restore_easing_state();
+							
 				});
 				
 				Timeout.add (410, () => {
@@ -474,6 +523,7 @@ namespace Gala
 				return;
 			
 			if (binding.get_mask () == 0) {
+				stderr.printf ("MASK\n");
 				current_window.activate (display.get_current_time ());
 				return;
 			}
@@ -516,7 +566,13 @@ namespace Gala
 			
 			set_child_above_sibling (dock_background, null);
 			dock_background.opacity = 255;
-			dock.animate (AnimationMode.EASE_OUT_CUBIC, 250, width : dest_width);
+						
+			dock.save_easing_state();
+			dock.set_easing_duration(250);
+			dock.set_easing_mode(Clutter.AnimationMode.EASE_OUT_CUBIC);
+			dock.set_width(dest_width);
+			dock.restore_easing_state();
+			
 			set_child_above_sibling (dock, null);
 			
 			dim_windows ();

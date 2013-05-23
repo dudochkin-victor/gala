@@ -100,22 +100,32 @@ namespace Gala
 		public override bool enter_event (CrossingEvent event)
 		{
 			//if we're still animating don't show the close button
-			if (get_animation () != null)
+			if (get_transition ("scale-x") != null)
 				return false;
 			
 			close_button.visible = true;
-			close_button.animate (AnimationMode.EASE_OUT_ELASTIC, 400, scale_x : 1.0f, scale_y : 1.0f);
+			
+			close_button.save_easing_state();
+			close_button.set_easing_duration(400);
+			close_button.set_easing_mode(Clutter.AnimationMode.EASE_OUT_ELASTIC);
+			close_button.set_scale(1.0f, 1.0f);
+			close_button.restore_easing_state();
 			
 			return true;
 		}
 		
 		public override bool motion_event (MotionEvent event)
 		{
-			if (get_animation () != null)
+			if (get_transition ("scale-x") != null)
 				return false;
 			
 			close_button.visible = true;
-			close_button.animate (AnimationMode.EASE_OUT_ELASTIC, 400, scale_x : 1.0f, scale_y : 1.0f);
+			
+			close_button.save_easing_state();
+			close_button.set_easing_duration(400);
+			close_button.set_easing_mode(Clutter.AnimationMode.EASE_OUT_ELASTIC);
+			close_button.set_scale(1.0f, 1.0f);
+			close_button.restore_easing_state();
 			
 			return true;
 		}
@@ -157,16 +167,25 @@ namespace Gala
 			float dest_y = rect.y - delta;
 			
 			//stop all running animations
-			detach_animation ();
-			icon.detach_animation ();
-			close_button.detach_animation ();
+			remove_all_transitions ();
+			icon.remove_all_transitions ();
+			close_button.remove_all_transitions ();
 			
 			bool dont_show = window.minimized || window.get_workspace () != window.get_screen ().get_active_workspace ();
 			do_animate = do_animate && !dont_show;
 			
 			if (do_animate) {
-				icon.animate (AnimationMode.EASE_IN_CUBIC, 100, scale_x:0.0f, scale_y:0.0f);
-				close_button.animate (AnimationMode.EASE_IN_QUAD, 200, scale_x : 0.0f, scale_y : 0.0f);
+				icon.save_easing_state();
+				icon.set_easing_duration(100);
+				icon.set_easing_mode(Clutter.AnimationMode.EASE_IN_CUBIC);
+				icon.set_scale(0.0f, 0.0f);
+				icon.restore_easing_state();
+				
+				close_button.save_easing_state();
+				close_button.set_easing_duration(200);
+				close_button.set_easing_mode(Clutter.AnimationMode.EASE_IN_QUAD);
+				close_button.set_scale(0.0f, 0.0f);
+				close_button.restore_easing_state();
 				
 				animate (AnimationMode.EASE_IN_OUT_CUBIC, 300, scale_x:1.0f, scale_y:1.0f, x:dest_x, y:dest_y).completed.connect (() => {
 					clone.source.show ();

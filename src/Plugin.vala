@@ -394,7 +394,7 @@ namespace Gala
 				float anchor_x = (float)(actor.x - icon.x) * actor.width  / (icon.width  - actor.width);
 				float anchor_y = (float)(actor.y - icon.y) * actor.height / (icon.height - actor.height);
 				
-				actor.move_anchor_point (anchor_x, anchor_y);
+				actor.set_pivot_point(anchor_x, anchor_y);
 				actor.animate (Clutter.AnimationMode.EASE_IN_EXPO, AnimationSettings.get_default ().minimize_duration, 
 					scale_x:scale_x, scale_y:scale_y,opacity:0)
 					.completed.connect (() => {
@@ -468,7 +468,7 @@ namespace Gala
 			
 			var window = actor.get_meta_window ();
 			
-			actor.detach_animation ();
+			actor.remove_all_transitions();
 			actor.show ();
 			
 			switch (window.window_type) {
@@ -552,7 +552,7 @@ namespace Gala
 			
 			var window = actor.get_meta_window ();
 			
-			actor.detach_animation ();
+			actor.remove_all_transitions ();
 			
 			switch (window.window_type) {
 				case WindowType.NORMAL:
@@ -635,8 +635,13 @@ namespace Gala
 				actor.animate (Clutter.AnimationMode.EASE_IN_OUT_SINE, AnimationSettings.get_default ().snap_duration, 
 					scale_x:scale_x, scale_y:scale_y).completed.connect ( () => {
 					actor.move_anchor_point_from_gravity (Clutter.Gravity.NORTH_WEST);
-					actor.animate (Clutter.AnimationMode.LINEAR, 1, scale_x:1.0f, 
-						scale_y:1.0f);//just scaling didnt want to work..
+										
+					actor.save_easing_state();
+					actor.set_easing_duration(1);
+					actor.set_easing_mode(Clutter.AnimationMode.LINEAR);
+					//actor.set_pivot_point(0.5f, 0.5f);
+					actor.set_scale(1.0f, 1.0f);
+					actor.restore_easing_state();
 					
 					unmaximizing.remove (actor);
 					unmaximize_completed (actor);
@@ -659,7 +664,7 @@ namespace Gala
 				return false;
 			}
 			
-			actor.detach_animation ();
+			actor.remove_all_transitions ();
 			actor.opacity = 255;
 			actor.scale_x = 1.0f;
 			actor.scale_y = 1.0f;
@@ -833,12 +838,28 @@ namespace Gala
 			var animation_duration = AnimationSettings.get_default ().workspace_switch_duration;
 			var animation_mode = Clutter.AnimationMode.EASE_OUT_CUBIC;
 			
-			out_group.animate (animation_mode, animation_duration, x : x2, y : y2);
+			out_group.save_easing_state();
+			out_group.set_easing_duration(animation_duration);
+			out_group.set_easing_mode(animation_mode);
+			out_group.set_x(x2);
+			out_group.set_y(y2);
+			out_group.restore_easing_state();
+			
 			in_group.animate (animation_mode, animation_duration, x : 0.0f, y : 0.0f).completed.connect (() => {
 				end_switch_workspace ();
 			});
-			wallpaper.animate (animation_mode, animation_duration, x : (x2 < 0 ? -w : w));
-			wallpaper_clone.animate (animation_mode, animation_duration, x : 0.0f);
+			
+			wallpaper.save_easing_state();
+			wallpaper.set_easing_duration(animation_duration);
+			wallpaper.set_easing_mode(animation_mode);
+			wallpaper.set_x((x2 < 0 ? -w : w));
+			wallpaper.restore_easing_state();
+			
+			wallpaper_clone.save_easing_state();
+			wallpaper_clone.set_easing_duration(animation_duration);
+			wallpaper_clone.set_easing_mode(animation_mode);
+			wallpaper_clone.set_x(0.0f);
+			wallpaper_clone.restore_easing_state();
 		}
 		
 		void end_switch_workspace ()
@@ -847,7 +868,7 @@ namespace Gala
 				return;
 			
 			var screen = get_screen ();
-			var display = screen.get_display ();
+			//var display = screen.get_display ();
 			
 			for (var i=0;i<win.length ();i++) {
 				var window = win.nth_data (i);
@@ -888,7 +909,7 @@ namespace Gala
 #if !HAS_MUTTER38
 			var wallpaper = Compositor.get_background_actor_for_screen (screen);
 #endif
-			wallpaper.detach_animation ();
+			wallpaper.remove_all_transitions ();
 			wallpaper.x = 0.0f;
 			
 			switch_workspace_completed ();

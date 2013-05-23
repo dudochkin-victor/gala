@@ -51,7 +51,16 @@ namespace Gala
 				handle = action.drag_handle;
 			if (WorkspaceThumb.destination == null) {
 				float ax, ay;
-				actor.get_parent ().animate (AnimationMode.LINEAR, 150, opacity:255);
+				
+				var pActor = actor.get_parent ();
+				
+				pActor.save_easing_state();
+				pActor.set_easing_duration(150);
+				pActor.set_easing_mode(Clutter.AnimationMode.LINEAR);
+				pActor.set_opacity(255);
+				pActor.restore_easing_state();
+				
+				
 				actor.get_transformed_position (out ax, out ay);
 				handle.animate (AnimationMode.EASE_OUT_BOUNCE, 250, x:ax, y:ay)
 					.completed.connect (() => {
@@ -86,8 +95,19 @@ namespace Gala
 					handle.destroy ();
 				
 				if (old != null)
-					old.icons.animate (AnimationMode.LINEAR, 100, x:Math.floorf (old.wallpaper.x + old.wallpaper.width / 2 - old.icons.width / 2));
-				icons.animate (AnimationMode.LINEAR, 100, x:Math.floorf (wallpaper.x + wallpaper.width / 2 - icons.width / 2));
+				{
+					old.icons.save_easing_state();
+					old.icons.set_easing_duration(100);
+					old.icons.set_easing_mode(Clutter.AnimationMode.LINEAR);
+					old.icons.set_x(Math.floorf (old.wallpaper.x + old.wallpaper.width / 2 - old.icons.width / 2));
+					old.icons.restore_easing_state();
+				}
+				
+				icons.save_easing_state();
+				icons.set_easing_duration(100);
+				icons.set_easing_mode(Clutter.AnimationMode.LINEAR);
+				icons.set_x(Math.floorf (wallpaper.x + wallpaper.width / 2 - icons.width / 2));
+				icons.restore_easing_state();
 			}
 
 			WorkspaceThumb.destination = null;
